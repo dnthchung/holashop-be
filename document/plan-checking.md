@@ -5,27 +5,30 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 1: Foundation & "Dev-Mode" Security
+
 **Goal**: Get the app running with basic infrastructure and temporary security.
 
 ### 1.1 Project Initialization
-- [ ] Setup Spring Boot project with dependencies:
-  - [ ] spring-boot-starter-web
-  - [ ] spring-boot-starter-data-jpa
-  - [ ] mysql-connector-j
-  - [ ] spring-boot-starter-validation
-  - [ ] lombok
-  - [ ] mapstruct (1.5.5.Final)
-- [ ] Configure `application.yml`:
-  - [ ] Database connection (MySQL URL, username, password)
-  - [ ] Server port (8080)
-  - [ ] JPA settings (ddl-auto: validate, show-sql: true)
-- [ ] Setup **Flyway** for database migrations:
-  - [ ] Add Flyway dependencies
-  - [ ] Create `V1__init_schema.sql` (users, roles, categories tables)
-  - [ ] Configure Flyway in application.yml
+
+- [x] Setup Spring Boot project with dependencies:
+  - [x] spring-boot-starter-web
+  - [x] spring-boot-starter-data-jpa
+  - [x] mysql-connector-j
+  - [x] spring-boot-starter-validation
+  - [x] lombok
+  - [x] mapstruct (1.5.5.Final)
+- [x] Configure `application.yml`:
+  - [x] Database connection (MySQL URL, username, password)
+  - [x] Server port (8080)
+  - [x] JPA settings (ddl-auto: validate, show-sql: true)
+- [x] Setup **Flyway** for database migrations:
+  - [x] Add Flyway dependencies
+  - [x] Create `V1__init_schema.sql` (users, roles, categories tables)
+  - [x] Configure Flyway in application.yml
   - [ ] **Verify**: Run app, check Flyway migrations executed
 
 ### 1.2 Error Handling & Validation Infrastructure
+
 - [ ] Create `@ControllerAdvice` for global exception handling:
   - [ ] Create `GlobalExceptionHandler` class
   - [ ] Handle `MethodArgumentNotValidException`
@@ -40,6 +43,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] **Verify**: Trigger validation error, check log output
 
 ### 1.3 Basic Security Setup (Temporary)
+
 - [ ] Add `spring-boot-starter-security` dependency
 - [ ] Implement `Spring Security` with **HTTP Basic Auth**:
   - [ ] Create `SecurityConfig` class with `@Configuration`
@@ -54,7 +58,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] `/api/v1/admin/**` requires `ADMIN` role
   - [ ] `/api/v1/users/**` requires authentication
   - [ ] Public endpoints: `/api/v1/categories`, `/api/v1/products` (GET only)
-- [ ] **Verify**: 
+- [ ] **Verify**:
   - [ ] Login via Postman with Basic Auth credentials
   - [ ] Access admin endpoint with user credentials (should fail)
   - [ ] Access public endpoint without auth (should succeed)
@@ -62,9 +66,11 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 2: Core Data Management
+
 **Goal**: Implement fundamental entities and CRUD operations.
 
 ### 2.1 Category Management
+
 - [ ] Create Entity `Category`:
   - [ ] Fields: `id`, `name`
   - [ ] Add `@Entity`, `@Table(name = "categories")`
@@ -90,6 +96,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Non-admin cannot create/update/delete
 
 ### 2.2 Product Management (Basic)
+
 - [ ] Create Entity `Product`:
   - [ ] Fields: `id`, `name`, `price`, `thumbnail`, `description`
   - [ ] `@ManyToOne` relationship to `Category`
@@ -124,6 +131,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Filtering by keyword and category works
 
 ### 2.3 User Management (Data Layer)
+
 - [ ] Create Entity `Role`:
   - [ ] Fields: `id`, `name` (e.g., "ADMIN", "USER")
   - [ ] Flyway migration: `V3__create_roles_table.sql`
@@ -154,9 +162,11 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 3: Business Logic & Interactions
+
 **Goal**: Enable shop activities like ordering and product images.
 
 ### 3.1 Product Images
+
 - [ ] Create Entity `ProductImage`:
   - [ ] Fields: `id`, `imageUrl`
   - [ ] `@ManyToOne` relationship to `Product`
@@ -187,6 +197,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Invalid files rejected
 
 ### 3.2 Order Processing
+
 - [ ] Create Entity `Order`:
   - [ ] Fields: `id`, `userId`, `fullName`, `email`, `phoneNumber`, `address`, `note`, `orderDate`, `status`, `totalMoney`, `shippingMethod`, `shippingAddress`, `shippingDate`, `trackingNumber`, `paymentMethod`, `active`
   - [ ] `@ManyToOne` relationship to `User`
@@ -230,6 +241,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Admin can manage all orders
 
 ### 3.3 Coupons & Calculation
+
 - [ ] Create Entity `Coupon`:
   - [ ] Fields: `id`, `code`, `active`
 - [ ] Create Entity `CouponCondition`:
@@ -252,9 +264,11 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 4: Advanced Features & Optimization
+
 **Goal**: Add polish with comments, caching, and search improvements.
 
 ### 4.1 Comments/Reviews
+
 - [ ] Create Entity `Comment`:
   - [ ] Fields: `id`, `productId`, `userId`, `content`
   - [ ] `@ManyToOne` relationships to `Product` and `User`
@@ -280,6 +294,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Comments displayed correctly
 
 ### 4.2 Redis Caching
+
 - [ ] Install Redis server:
   - [ ] Option A: Local installation
   - [ ] Option B: Docker container (`docker run -d -p 6379:6379 redis`)
@@ -310,6 +325,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Cache cleared on product modification
 
 ### 4.3 Advanced Search
+
 - [ ] Enhance `ProductRepository`:
   - [ ] Add method with `@Query` for multi-criteria search
   - [ ] Support filtering by: name, category, price range, status
@@ -325,6 +341,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Search returns correct results for various criteria
 
 ### 4.4 Token Entity Preparation (for Phase 5)
+
 - [ ] Create Entity `Token`:
   - [ ] Fields: `id`, `token`, `refreshToken`, `tokenType`, `expirationTime`, `refreshExpirationTime`, `revoked`, `expired`, `isMobile`
   - [ ] `@OneToOne` relationship to `User`
@@ -335,9 +352,11 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 5: Production Security (The "Big Switch")
+
 **Goal**: Replace Basic Auth with robust JWT Security.
 
 ### 5.1 JWT Implementation
+
 - [ ] Verify `jjwt` dependencies in `pom.xml`:
   - [ ] `jjwt-api` (0.11.5)
   - [ ] `jjwt-impl` (0.11.5)
@@ -362,6 +381,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Token validation logic works
 
 ### 5.2 JWT Filter
+
 - [ ] Create `JwtTokenFilter extends OncePerRequestFilter`:
   - [ ] Extract token from `Authorization` header (format: `Bearer <token>`)
   - [ ] Validate token using `JwtTokenUtil`
@@ -375,6 +395,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Authentication set in context
 
 ### 5.3 Authentication Endpoints
+
 - [ ] Implement `UserDetailsService`:
   - [ ] Override `loadUserByUsername(String phoneNumber)`
   - [ ] Load user from database
@@ -403,6 +424,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Refresh token generates new access token
 
 ### 5.4 Parallel Auth Support (Transition Phase)
+
 - [ ] Update `SecurityConfig` to support BOTH Basic Auth AND JWT:
   - [ ] Add JWT filter to filter chain (before `UsernamePasswordAuthenticationFilter`)
   - [ ] Keep Basic Auth configuration active
@@ -417,6 +439,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] No conflicts between auth mechanisms
 
 ### 5.5 Final Switch to JWT Only
+
 - [ ] Disable Basic Auth in `SecurityConfig`:
   - [ ] Remove `httpBasic()` configuration
   - [ ] Remove hardcoded test users
@@ -441,9 +464,11 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Phase 6: Final Polish & Deployment Preparation
+
 **Goal**: Prepare application for production deployment.
 
 ### 6.1 Security Hardening
+
 - [ ] Implement logout endpoint:
   - [ ] `POST /api/v1/users/logout` - Revoke current token
 - [ ] Add token blacklist mechanism (optional, for immediate revocation)
@@ -454,6 +479,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] CORS allows frontend requests
 
 ### 6.2 Documentation
+
 - [ ] Complete Swagger/OpenAPI documentation:
   - [ ] Add descriptions to all endpoints
   - [ ] Document request/response schemas
@@ -465,6 +491,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Authentication flow diagram
 
 ### 6.3 Monitoring & Health Checks
+
 - [ ] Configure Spring Boot Actuator:
   - [ ] Enable health, info, metrics endpoints
   - [ ] Secure actuator endpoints (ADMIN only)
@@ -474,6 +501,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Metrics available for monitoring
 
 ### 6.4 Production Configuration
+
 - [ ] Create production profile (`application-prod.yml`):
   - [ ] Disable DEBUG logging
   - [ ] Disable Swagger UI (optional)
@@ -488,6 +516,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
 ---
 
 ## Completion Checklist
+
 - [ ] All endpoints tested and working
 - [ ] JWT authentication fully functional
 - [ ] Database migrations applied
@@ -500,6 +529,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
 **Estimated Timeline**: 8-12 weeks (depending on experience level)
 
 **Notes**:
+
 - Always commit code after each completed task
 - Write tests as you go, not at the end
 - Use feature branches for each phase
