@@ -1,6 +1,6 @@
 -- MySQL dump 10.13  Distrib 8.2.0, for macos13 (x86_64)
 --
--- Host: localhost    Database: shopapp
+-- Host: localhost    Database: hola_shop
 -- ------------------------------------------------------
 -- Server version	8.2.0
 
@@ -14,6 +14,9 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS = @@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS = 0 */;
 /*!40101 SET @OLD_SQL_MODE = @@SQL_MODE, SQL_MODE = 'NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES = @@SQL_NOTES, SQL_NOTES = 0 */;
+
+CREATE DATABASE IF NOT EXISTS `hola_shop` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+USE `hola_shop`;
 
 --
 -- Table structure for table `categories`
