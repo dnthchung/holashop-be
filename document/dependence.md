@@ -1,6 +1,6 @@
 # Backend Dependencies & Technologies
 
-Based on the `pom.xml` file, the `shopapp-backend` project utilizes the following technologies and dependencies:
+Based on the `pom.xml` file, the `hola_shop_be` project utilizes the following technologies and dependencies:
 
 ## 1. Core Environment
 *   **Java:** JDK 17

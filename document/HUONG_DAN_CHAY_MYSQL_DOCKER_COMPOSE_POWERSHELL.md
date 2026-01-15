@@ -1,6 +1,6 @@
 # Hướng dẫn chạy MySQL bằng Docker Compose (PowerShell) – hola-shop-be
 
-Tài liệu này hướng dẫn **chạy lại từ đầu** (fresh) MySQL bằng Docker Compose trên **Windows PowerShell**, import schema và import data từ các file SQL trong dự án.
+Tài liệu này hướng dẫn **chạy lại từ đầu** (fresh) MySQL bằng Docker Compose trên **Windows PowerShell**, và import toàn bộ database (schema + data) từ file SQL chuẩn trong dự án.
 
 ---
 
@@ -22,7 +22,7 @@ PS D:\github-personal\hola-shop-be>
 
 ### 1.1 `.env` (ví dụ)
 
-Đảm bảo `.env` nằm **cùng thư mục** với `docker-compose.yml` và có tối thiểu:
+Đảm bảo `.env` nằm **cùng thư mục** với `docker-compose.yml` và có các thông số DB khớp với file sql (MySQL 8+, database `hola_shop`):
 
 ```env
 MYSQL_TAG=8.2.0
@@ -31,40 +31,27 @@ MYSQL_ROOT_PASSWORD=10062003
 MYSQL_PORT=3307
 ```
 
-> Ghi chú: MySQL official image **không dùng** `MYSQL_ROOT_USERNAME`. Root user luôn là `root`.
+> **Lưu ý**: File setup dữ liệu (`data_sql.sql`) đã bao gồm lệnh `CREATE DATABASE hola_shop` và `USE hola_shop`, vì vậy tên database trong `.env` chỉ mang tính chất khởi tạo ban đầu cho container, quan trọng là Port và Password.
 
 ### 1.2 `docker-compose.yml` (MySQL-only)
 
-Ví dụ tối thiểu:
+Đảm bảo service mysql đang map đúng port và volume:
 
 ```yml
 services:
   mysql8-container:
-    container_name: mysql8-container
     image: mysql:${MYSQL_TAG}
-    restart: always
-    environment:
-      MYSQL_DATABASE: ${MYSQL_DATABASE}
-      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    # ...
     ports:
       - "${MYSQL_PORT}:3306"
     volumes:
       - mysql-data:/var/lib/mysql
-    networks:
-      - hola-shop-network
-
-networks:
-  hola-shop-network:
-    name: hola-shop-network
-    driver: bridge
-
-volumes:
-  mysql-data:
+    # ...
 ```
 
 ---
 
-## 2) Reset sạch (xóa container + volume + network) để chạy lại từ đầu
+## 2) Reset sạch (xóa container + volume) để chạy lại từ đầu
 
 Chạy các lệnh sau trong **PowerShell** tại thư mục dự án:
 
@@ -72,40 +59,11 @@ Chạy các lệnh sau trong **PowerShell** tại thư mục dự án:
 PS D:\github-personal\hola-shop-be> docker compose down -v --remove-orphans
 ```
 
-- `-v` là quan trọng: xóa luôn **volume DB** để MySQL init lại từ đầu.
-
-> Nếu bạn muốn kiểm tra volume còn hay không:
-
-```powershell
-PS D:\github-personal\hola-shop-be> docker volume ls | findstr mysql
-```
-
-> Nếu cần xóa volume thủ công (hiếm khi cần):
-
-```powershell
-PS D:\github-personal\hola-shop-be> docker volume rm hola-shop-be_mysql-data
-```
+- `-v` là quan trọng: xóa luôn **volume DB cũ** để MySQL init lại từ đầu, tránh xung đột dữ liệu cũ.
 
 ---
 
-## 3) Xác nhận Docker Compose đã đọc đúng `.env`
-
-Chạy:
-
-```powershell
-PS D:\github-personal\hola-shop-be> docker compose config
-```
-
-Bạn cần chắc chắn các giá trị quan trọng đã được “render” đúng:
-
-- `image: mysql:<MYSQL_TAG>`
-- `MYSQL_DATABASE: <MYSQL_DATABASE>`
-- `MYSQL_ROOT_PASSWORD: "<MYSQL_ROOT_PASSWORD>"`
-- `published: "<MYSQL_PORT>"`
-
----
-
-## 4) Start MySQL container
+## 3) Start MySQL container
 
 Chạy:
 
@@ -113,113 +71,70 @@ Chạy:
 PS D:\github-personal\hola-shop-be> docker compose up -d
 ```
 
----
-
-## 5) Kiểm tra log MySQL (đảm bảo DB sẵn sàng nhận kết nối)
-
-Xem log (đuôi 80 dòng):
+Chờ khoảng 10-20 giây để MySQL khởi động hoàn tất. Bạn có thể check log để chắc chắn nó đã "ready for connections":
 
 ```powershell
-PS D:\github-personal\hola-shop-be> docker logs --tail 80 mysql8-container
-```
-
-Hoặc xem realtime (nhấn `Ctrl + C` để thoát):
-
-```powershell
-PS D:\github-personal\hola-shop-be> docker logs -f mysql8-container
+PS D:\github-personal\hola-shop-be> docker logs --tail 20 mysql8-container
 ```
 
 ---
 
-## 6) Test kết nối MySQL trong container (khuyến nghị test nhanh bằng `-e`)
+## 4) Import Schema và Data (Sử dụng `data_sql.sql`)
+
+Chúng ta sẽ dùng file **`src/main/resources/sql/data_sql.sql`**. File này là bản dump đầy đủ (Full Dump) chứa cả **Schema** (Create Table) và **Data** (Insert), đồng thời tự động tạo DB `hola_shop` nếu chưa có.
+
+**Lệnh Import trên PowerShell:**
+
+Sử dụng `Get-Content` pipe vào `docker exec`. Lưu ý **không** cần chỉ định tên database trong lệnh `mysql` vì trong file SQL đã có lệnh `USE hola_shop;`.
 
 ```powershell
-PS D:\github-personal\hola-shop-be> docker exec -it mysql8-container mysql -uroot -p10062003 -e "SHOW DATABASES;"
+PS D:\github-personal\hola-shop-be> Get-Content -Raw "src\main\resources\sql\data_sql.sql" | docker exec -i mysql8-container mysql -uroot -p10062003
 ```
 
-> Lưu ý: `-p<password>` viết liền nhau, không có dấu cách.
+> **Giải thích**:
+> - `-Raw`: Đọc toàn bộ file thành một chuỗi (giữ nguyên xuống dòng), tránh lỗi cú pháp khi pipe.
+> - `-i`: Interactive mode cho docker exec để nhận input từ pipe.
+> - `-u... -p...`: User và Password (viết liền sau -p).
 
 ---
 
-## 7) Import schema và data từ file SQL (PowerShell)
+## 5) Verify (Kiểm tra kết quả)
 
-PowerShell **không dùng** cú pháp `< file.sql` như bash. Dùng `Get-Content` + pipe.
+Sau khi import xong, hãy kiểm tra xem database và bảng đã có chưa.
 
-### 7.1 Import schema (DDL)
-
-File schema trong dự án:
-
-- `D:\github-personal\hola-shop-be\src\main\resources\db\migration\V1__init_schema.sql`
-
-Chạy:
-
-```powershell
-PS D:\github-personal\hola-shop-be> Get-Content -Raw "D:\github-personal\hola-shop-be\src\main\resources\db\migration\V1__init_schema.sql" |
->>   docker exec -i mysql8-container mysql -uroot -p10062003 hola_shop
-```
-
-### 7.2 Import dữ liệu mẫu (DML)
-
-Các file data trong dự án:
-
-- `D:\github-personal\hola-shop-be\src\main\resources\sql\data_sql.sql`
-- `D:\github-personal\hola-shop-be\src\main\resources\sql\database.sql`
-
-Chạy lần lượt (nếu cả hai file đều có data):
-
-```powershell
-PS D:\github-personal\hola-shop-be> Get-Content -Raw "D:\github-personal\hola-shop-be\src\main\resources\sql\database.sql" |
->>   docker exec -i mysql8-container mysql -uroot -p10062003 hola_shop
-```
-
-```powershell
-PS D:\github-personal\hola-shop-be> Get-Content -Raw "D:\github-personal\hola-shop-be\src\main\resources\sql\data_sql.sql" |
->>   docker exec -i mysql8-container mysql -uroot -p10062003 hola_shop
-```
-
----
-
-## 8) Verify đã tạo bảng và dữ liệu chưa
-
-Liệt kê bảng:
+### 5.1 Kiểm tra danh sách bảng
 
 ```powershell
 PS D:\github-personal\hola-shop-be> docker exec -it mysql8-container mysql -uroot -p10062003 -e "USE hola_shop; SHOW TABLES;"
 ```
 
-Sau đó chọn một bảng bất kỳ từ kết quả và đếm bản ghi (ví dụ bảng `users`):
+Bạn sẽ thấy danh sách các bảng như: `categories`, `products`, `users`, `orders`, `order_details`, v.v.
+
+### 5.2 Kiểm tra dữ liệu (ví dụ bảng Products)
+
+Đếm số lượng sản phẩm để chắc chắn data đã vào:
 
 ```powershell
-PS D:\github-personal\hola-shop-be> docker exec -it mysql8-container mysql -uroot -p10062003 -e "USE hola_shop; SELECT COUNT(*) FROM users;"
+PS D:\github-personal\hola-shop-be> docker exec -it mysql8-container mysql -uroot -p10062003 -e "USE hola_shop; SELECT COUNT(*) FROM products;"
 ```
 
----
-
-## 9) Troubleshooting nhanh
-
-### 9.1 `ERROR 1045 Access denied for user 'root'`
-
-- Password không đúng, hoặc MySQL chưa init theo password mới do volume cũ.
-- Giải pháp: chạy lại **Bước 2** (down -v) rồi up lại.
-
-### 9.2 Không thấy DB `hola_shop`
-
-- Kiểm tra `.env` và `docker compose config` xem `MYSQL_DATABASE` có đúng không.
-- Đảm bảo `.env` nằm cùng thư mục với `docker-compose.yml`.
-
-### 9.3 Port bị chiếm (không start được)
-
-- Đổi `MYSQL_PORT` sang cổng khác (vd: 3308) trong `.env`.
-- Up lại: `docker compose up -d`
+Nếu kết quả > 0 (ví dụ vài chục hoặc vài trăm bản ghi), chúc mừng bạn đã setup thành công!
 
 ---
 
-## 10) (Tuỳ chọn) Kết nối từ tool ngoài (DBeaver / IntelliJ / MySQL Workbench)
+## 6) Troubleshooting (Gỡ lỗi)
 
-- Host: `localhost`
-- Port: `3307` (theo `MYSQL_PORT`)
-- User: `root`
-- Password: `10062003`
-- Database: `hola_shop`
+### 6.1 Lỗi `ERROR 1045 Access denied`
+- Kiểm tra lại password trong lệnh docker exec có khớp với `.env` không.
+- Nếu vừa đổi password trong `.env`, bắt buộc phải chạy `docker compose down -v` để reset volume thì pass mới mới có hiệu lực.
 
----
+### 6.2 Lỗi `Unknown database 'hola_shop'` khi chưa import
+- Container MySQL khi khởi tạo lần đầu sẽ tạo DB theo biến `MYSQL_DATABASE` trong `.env`. Hãy đảm bảo `.env` có `MYSQL_DATABASE=hola_shop`.
+- Tuy nhiên, file `data_sql.sql` của chúng ta có lệnh `CREATE DATABASE IF NOT EXISTS hola_shop`, nên nếu chạy đúng lệnh import ở bước 4 thì lỗi này sẽ tự hết.
+
+### 6.3 Lỗi encoding / ký tự lạ khi import
+- PowerShell đôi khi bị lỗi encoding với ký tự có dấu.
+- Nếu gặp lỗi này, hãy thử thêm encoding cho `Get-Content`:
+  ```powershell
+  Get-Content -Raw -Encoding UTF8 "src\main\resources\sql\data_sql.sql" | ...
+  ```

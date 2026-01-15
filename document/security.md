@@ -2,7 +2,7 @@
 
 ## Supported Versions
 
-The following versions of the **shopapp-backend** project are currently supported with security updates:
+The following versions of the **hola_shop_be** project are currently supported with security updates:
 
 | Version | Supported          |
 | ------- | ------------------ |

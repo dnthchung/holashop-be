@@ -1,8 +1,8 @@
-# Entity Relationship Diagram (ERD) - ShopApp Backend
+# Entity Relationship Diagram (ERD) - hola_shop Backend
 
 ## Overview
 
-This document outlines the database schema and entity relationships for the ShopApp Backend system.
+This document outlines the database schema and entity relationships for the hola_shop Backend system.
 
 ## Mermaid Diagram
 

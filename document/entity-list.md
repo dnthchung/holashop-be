@@ -1,6 +1,6 @@
 # Shopp App Backend - Entity List
 
-This document lists all the JPA entities defined in the `shopapp-backend` project.
+This document lists all the JPA entities defined in the `hola_shop_be` project.
 
 ## 1. BaseEntity
 *   **Description:** A mapped superclass that provides common auditing fields for other entities.

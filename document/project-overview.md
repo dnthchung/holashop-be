@@ -6,7 +6,7 @@
 
 ## Introduction
 
-Welcome to the backend component of `shopapp-backend`. This Java Spring Boot application handles server-side logic, data processing, and provides essential APIs for the e-commerce platform.
+Welcome to the backend component of `hola_shop_be`. This Java Spring Boot application handles server-side logic, data processing, and provides essential APIs for the e-commerce platform.
 
 ## Key Features
 
@@ -40,8 +40,8 @@ Welcome to the backend component of `shopapp-backend`. This Java Spring Boot app
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/hoangtien2k3/shopapp-backend.git
-    cd shopapp-backend
+    git clone https://github.com/hoangtien2k3/hola_shop_be.git
+    cd hola_shop_be
     ```
 
 2.  **Configure Database:**
@@ -78,4 +78,4 @@ Copyright (c) 2024 Hoàng Anh Tiến
 
 Special thanks to the project maintainers and contributors.
 
-[![Contributors](https://contrib.rocks/image?repo=hoangtien2k3/shopapp-backend)](https://github.com/hoangtien2k3/shopapp-backend/graphs/contributors)
+[![Contributors](https://contrib.rocks/image?repo=hoangtien2k3/hola_shop_be)](https://github.com/hoangtien2k3/hola_shop_be/graphs/contributors)

@@ -1,5 +1,5 @@
-CREATE DATABASE shopapp;
-USE shopapp;
+CREATE DATABASE hola_shop;
+USE hola_shop;
 
 -- SET sql_mode = 'STRICT_ALL_TABLES'; -- BẬT CHẾT ĐỘ TRICK MODE CHO TẤT CẢ CÁC TABLE
 

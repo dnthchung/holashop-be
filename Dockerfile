@@ -11,4 +11,4 @@ CMD ["./mvnw", "spring-boot:run"]
 # -d: Chạy container ở chế độ nền (detach mode)
 # -p 8080:8080: Chuyển tiếp cổng 8080 từ container sang cổng 8080 trên máy tính host
 # -v "$(pwd):/app": Mount thư mục hiện tại của máy tính host vào /app trong container
-# docker run -dp 8080:8080 --name shopapp-backend -v "$(pwd):/app" --network shopapp-network hoangtien2k3/shopapp-backend:v1.0.0
+# docker run -dp 8080:8080 --name hola_shop_be -v "$(pwd):/app" --network hola_shop-network hoangtien2k3/hola_shop_be:v1.0.0
