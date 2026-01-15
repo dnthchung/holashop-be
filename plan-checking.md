@@ -25,9 +25,9 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [x] Add Flyway dependencies
   - [x] Create `V1__init_schema.sql` (users, roles, categories tables)
   - [x] Configure Flyway in application.yml
-  - [ ] **Verify**: Run app, check Flyway migrations executed
+  - [x] **Verify**: Run app, check Flyway migrations executed - dùng docker-nếu đã import db vào thì tạm tắt flyway
 
-### 1.2 Error Handling & Validation Infrastructure
+### 1.2 Error Handling & Validation Infrastructure (làm sau cùng)
 
 - [ ] Create `@ControllerAdvice` for global exception handling:
   - [ ] Create `GlobalExceptionHandler` class
@@ -42,7 +42,7 @@ This checklist prioritizes core business features using simple Basic Authenticat
   - [ ] Set Spring Security logging to DEBUG for development
   - [ ] **Verify**: Trigger validation error, check log output
 
-### 1.3 Basic Security Setup (Temporary)
+### 1.3 Basic Security Setup (Temporary) (làm sau)
 
 - [ ] Add `spring-boot-starter-security` dependency
 - [ ] Implement `Spring Security` with **HTTP Basic Auth**:
@@ -71,18 +71,18 @@ This checklist prioritizes core business features using simple Basic Authenticat
 
 ### 2.1 Category Management
 
-- [ ] Create Entity `Category`:
-  - [ ] Fields: `id`, `name`
-  - [ ] Add `@Entity`, `@Table(name = "categories")`
-  - [ ] Add validation annotations (`@NotBlank` on name)
-- [ ] Create `CategoryRepository extends JpaRepository`
-- [ ] Create `CategoryDTO` and mapper (MapStruct or ModelMapper)
-- [ ] Implement `CategoryService`:
-  - [ ] `getAllCategories()`
-  - [ ] `getCategoryById(Long id)`
-  - [ ] `createCategory(CategoryDTO dto)`
-  - [ ] `updateCategory(Long id, CategoryDTO dto)`
-  - [ ] `deleteCategory(Long id)`
+- [x] Create Entity `Category`:
+  - [x] Fields: `id`, `name`
+  - [x] Add `@Entity`, `@Table(name = "categories")`
+  - [x] Add validation annotations (`@NotBlank` on name)
+- [x] Create `CategoryRepository extends JpaRepository`
+- [x] Create `CategoryDTO` and mapper (MapStruct or ModelMapper)
+- [x] Implement `CategoryService`:
+  - [x] `getAllCategories()`
+  - [x] `getCategoryById(Long id)`
+  - [x] `createCategory(CategoryDTO dto)`
+  - [x] `updateCategory(Long id, CategoryDTO dto)`
+  - [x] `deleteCategory(Long id)`
 - [ ] Create `CategoryController`:
   - [ ] `GET /api/v1/categories` - Public
   - [ ] `POST /api/v1/categories` - ADMIN only
