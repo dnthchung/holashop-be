@@ -1,0 +1,22 @@
+services:
+  mysql8-container:
+    container_name: mysql8-container
+    image: mysql:${MYSQL_TAG}
+    restart: always
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - "${MYSQL_PORT}:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    networks:
+      - hola-shop-network
+
+networks:
+  hola-shop-network:
+    name: hola-shop-network
+    driver: bridge
+
+volumes:
+  mysql-data:
