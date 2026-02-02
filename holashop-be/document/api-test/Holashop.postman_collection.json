@@ -1,0 +1,1009 @@
+{
+	"info": {
+		"_postman_id": "holashop-api-collection",
+		"name": "Holashop API",
+		"description": "Complete API collection for Holashop e-commerce platform.\n\n## 🔑 Authentication\n1. Run \"Login\" request first\n2. Token will be auto-saved to environment variable `access_token`\n3. All authenticated requests will use this token automatically\n\n## 📚 Features\n- User authentication & management\n- Product catalog\n- Shopping cart & orders\n- Comments & reviews\n- Coupons & discounts\n\n**Base URL:** `{{baseUrl}}`  \n**Version:** 1.0.0  \n**Author:** Holashop Team",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "1. Authentication & Users",
+			"item": [
+				{
+					"name": "1.1. Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Check if registration successful",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    if (jsonData.success) {",
+									"        console.log('✅ Registration successful!');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullname\": \"Test User\",\n  \"phone_number\": \"0123456789\",\n  \"password\": \"password123\",\n  \"retype_password\": \"password123\",\n  \"address\": \"123 Test Street\",\n  \"date_of_birth\": \"1990-01-01\",\n  \"role_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/register",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "register"]
+						},
+						"description": "Register a new user account. Role ID: 1=USER, 2=ADMIN"
+					},
+					"response": []
+				},
+				{
+					"name": "1.2. Login ⭐",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Auto-save tokens to environment variables",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.success && jsonData.payload) {",
+									"        // Save tokens to environment",
+									"        pm.environment.set('access_token', jsonData.payload.token);",
+									"        pm.environment.set('refresh_token', jsonData.payload.refresh_token);",
+									"        ",
+									"        // Log success",
+									"        console.log('✅ Login successful!');",
+									"        console.log('🔑 Access token saved:', jsonData.payload.token.substring(0, 30) + '...');",
+									"        console.log('🔄 Refresh token saved:', jsonData.payload.refresh_token.substring(0, 30) + '...');",
+									"        ",
+									"        // Test assertions",
+									"        pm.test('Login successful', function() {",
+									"            pm.expect(jsonData.success).to.be.true;",
+									"        });",
+									"        ",
+									"        pm.test('Token exists', function() {",
+									"            pm.expect(jsonData.payload.token).to.exist;",
+									"        });",
+									"    }",
+									"} else {",
+									"    console.log('❌ Login failed!');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"phone_number\": \"0123456789\",\n  \"password\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/login",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "login"]
+						},
+						"description": "⭐ **IMPORTANT: Run this FIRST!**\n\nLogin and automatically save `access_token` and `refresh_token` to environment variables.\n\nAll subsequent requests will use the saved token automatically."
+					},
+					"response": []
+				},
+				{
+					"name": "1.3. Refresh Token",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"// Auto-update tokens after refresh",
+									"if (pm.response.code === 200) {",
+									"    const jsonData = pm.response.json();",
+									"    ",
+									"    if (jsonData.success && jsonData.payload) {",
+									"        pm.environment.set('access_token', jsonData.payload.token);",
+									"        pm.environment.set('refresh_token', jsonData.payload.refresh_token);",
+									"        ",
+									"        console.log('✅ Token refreshed successfully!');",
+									"        console.log('🔑 New access token:', jsonData.payload.token.substring(0, 30) + '...');",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"refresh_token\": \"{{refresh_token}}\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/refresh-token",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "refresh-token"]
+						},
+						"description": "Refresh expired access token using refresh token. Both tokens will be updated automatically."
+					},
+					"response": []
+				},
+				{
+					"name": "1.4. Get User Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/details",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "details"]
+						},
+						"description": "Get current user details from token. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "1.5. Update User Details",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullname\": \"Updated Name\",\n  \"address\": \"Updated Address\",\n  \"date_of_birth\": \"1990-01-01\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/users/details/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "details", "{{userId}}"]
+						},
+						"description": "Update user profile. Requires ROLE_USER permission."
+					},
+					"response": []
+				},
+				{
+					"name": "1.6. List Users (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users?keyword=&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["users"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get list of all users with pagination. Requires ROLE_ADMIN permission."
+					},
+					"response": []
+				},
+				{
+					"name": "1.7. Reset Password (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/reset-password/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "reset-password", "{{userId}}"]
+						},
+						"description": "Reset user password to random string. Requires ROLE_ADMIN permission."
+					},
+					"response": []
+				},
+				{
+					"name": "1.8. Block User (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/block/{{userId}}/0",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "block", "{{userId}}", "0"]
+						},
+						"description": "Block user account. Set last path param to 0 for block, 1 for unblock. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "1.9. Unblock User (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/users/block/{{userId}}/1",
+							"host": ["{{baseUrl}}"],
+							"path": ["users", "block", "{{userId}}", "1"]
+						},
+						"description": "Unblock user account. Requires ROLE_ADMIN permission."
+					},
+					"response": []
+				}
+			],
+			"description": "User authentication and management endpoints"
+		},
+		{
+			"name": "2. Roles",
+			"item": [
+				{
+					"name": "2.1. Get All Roles",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/roles",
+							"host": ["{{baseUrl}}"],
+							"path": ["roles"]
+						},
+						"description": "Get list of all available roles. Public endpoint."
+					},
+					"response": []
+				}
+			],
+			"description": "Role management"
+		},
+		{
+			"name": "3. Categories",
+			"item": [
+				{
+					"name": "3.1. Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
+						},
+						"description": "Get all product categories. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "3.2. Create Category (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Electronics\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories"]
+						},
+						"description": "Create new category. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "3.3. Update Category (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Category Name\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "{{categoryId}}"]
+						},
+						"description": "Update existing category. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "3.4. Delete Category (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/categories/{{categoryId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["categories", "{{categoryId}}"]
+						},
+						"description": "Delete category by ID. Requires ROLE_ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "Product category management"
+		},
+		{
+			"name": "4. Products",
+			"item": [
+				{
+					"name": "4.1. Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products?keyword=&category_id=&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": ""
+								},
+								{
+									"key": "category_id",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Get products with search, filter, and pagination. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "4.2. Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Get product details by ID. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "4.3. Create Product (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Product\",\n  \"price\": 99.99,\n  \"description\": \"Product description\",\n  \"thumbnail\": \"thumbnail.jpg\",\n  \"category_id\": 1\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products",
+							"host": ["{{baseUrl}}"],
+							"path": ["products"]
+						},
+						"description": "Create new product. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "4.4. Update Product (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Product\",\n  \"price\": 149.99,\n  \"description\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Update product by ID. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "4.5. Delete Product (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/products/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "{{productId}}"]
+						},
+						"description": "Delete product by ID. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "4.6. Upload Product Images (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "files",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/products/uploads/{{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["products", "uploads", "{{productId}}"]
+						},
+						"description": "Upload product images (multipart/form-data). Max 5 files. Requires ROLE_ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "Product catalog management"
+		},
+		{
+			"name": "5. Orders",
+			"item": [
+				{
+					"name": "5.1. Create Order (USER)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fullname\": \"Customer Name\",\n  \"email\": \"customer@example.com\",\n  \"phone_number\": \"0123456789\",\n  \"address\": \"Delivery address\",\n  \"note\": \"Please deliver in the morning\",\n  \"total_money\": 199.99,\n  \"shipping_method\": \"express\",\n  \"payment_method\": \"cod\",\n  \"cart_items\": [\n    {\n      \"product_id\": 1,\n      \"quantity\": 2\n    }\n  ]\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders"]
+						},
+						"description": "Create new order with cart items. Requires ROLE_USER."
+					},
+					"response": []
+				},
+				{
+					"name": "5.2. Get Order by ID",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						},
+						"description": "Get order details by ID. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "5.3. Get User Orders",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/user/{{userId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "user", "{{userId}}"]
+						},
+						"description": "Get all orders of a specific user. Requires authentication."
+					},
+					"response": []
+				},
+				{
+					"name": "5.4. Search Orders (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/get-order-by-keyword?keyword=&page=0&limit=10",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "get-order-by-keyword"],
+							"query": [
+								{
+									"key": "keyword",
+									"value": ""
+								},
+								{
+									"key": "page",
+									"value": "0"
+								},
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Search orders with pagination. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "5.5. Update Order (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"shipping\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						},
+						"description": "Update order status. Requires ROLE_ADMIN."
+					},
+					"response": []
+				},
+				{
+					"name": "5.6. Delete Order (ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/orders/{{orderId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["orders", "{{orderId}}"]
+						},
+						"description": "Soft delete order by ID. Requires ROLE_ADMIN."
+					},
+					"response": []
+				}
+			],
+			"description": "Order management"
+		},
+		{
+			"name": "6. Comments",
+			"item": [
+				{
+					"name": "6.1. Get Comments by Product",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/comments?product_id={{productId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments"],
+							"query": [
+								{
+									"key": "product_id",
+									"value": "{{productId}}"
+								}
+							]
+						},
+						"description": "Get all comments for a product. Public endpoint."
+					},
+					"response": []
+				},
+				{
+					"name": "6.2. Create Comment (USER)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": {{productId}},\n  \"content\": \"Great product!\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comments",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments"]
+						},
+						"description": "Create new comment on product. Requires ROLE_USER."
+					},
+					"response": []
+				},
+				{
+					"name": "6.3. Update Comment (USER)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"content\": \"Updated comment text\"\n}"
+						},
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{commentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments", "{{commentId}}"]
+						},
+						"description": "Update own comment. Requires ROLE_USER."
+					},
+					"response": []
+				},
+				{
+					"name": "6.4. Delete Comment (USER/ADMIN)",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{access_token}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/comments/{{commentId}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["comments", "{{commentId}}"]
+						},
+						"description": "Delete comment. User can delete own comments, Admin can delete any."
+					},
+					"response": []
+				}
+			],
+			"description": "Product comments and reviews"
+		},
+		{
+			"name": "7. Coupons",
+			"item": [
+				{
+					"name": "7.1. Calculate Coupon",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/coupons/calculate?couponCode={{couponCode}}&totalAmount={{totalAmount}}",
+							"host": ["{{baseUrl}}"],
+							"path": ["coupons", "calculate"],
+							"query": [
+								{
+									"key": "couponCode",
+									"value": "{{couponCode}}"
+								},
+								{
+									"key": "totalAmount",
+									"value": "{{totalAmount}}"
+								}
+							]
+						},
+						"description": "Calculate discount amount for a coupon code. Public endpoint."
+					},
+					"response": []
+				}
+			],
+			"description": "Coupon and discount management"
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level pre-request script",
+					"// Runs before every request",
+					"",
+					"// Log current environment",
+					"console.log('🌍 Environment:', pm.environment.name || 'No environment selected');",
+					"console.log('🔗 Base URL:', pm.environment.get('baseUrl'));",
+					"",
+					"// Check if token exists for authenticated requests",
+					"const hasAuth = pm.request.auth && pm.request.auth.type === 'bearer';",
+					"if (hasAuth) {",
+					"    const token = pm.environment.get('access_token');",
+					"    if (!token) {",
+					"        console.warn('⚠️ Warning: No access token found. Please run Login request first!');",
+					"    }",
+					"}"
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					"// Collection-level test script",
+					"// Runs after every request",
+					"",
+					"// Log response time",
+					"console.log('⏱️ Response time:', pm.response.responseTime + 'ms');",
+					"",
+					"// Log status code",
+					"console.log('📊 Status:', pm.response.code, pm.response.status);"
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8088/api/v1",
+			"type": "string"
+		}
+	]
+}
